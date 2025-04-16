@@ -34,6 +34,6 @@
 # TIPS
 1. Use slipt terminal to run both servers 
 2. use cd command to change directory !
-3. for React server use ```bash cd client ```
-4. and for Node js server use ```bash cd server```
-5. for access main GitMeet directory use ```bash cd .. ```
+3. for React server use ``` cd client ```
+4. and for Node js server use ``` cd server```
+5. for access main GitMeet directory use ``` cd .. ```
