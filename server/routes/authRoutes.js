@@ -1,9 +1,10 @@
 const express = require('express');
-const router = express.Router();
-const authController = require('../authController');
+const passport = require('passport');
+const userController = require('../controllers/userController');
 
-router.get('/github', authController.githubAuth);
-router.get('/github/callback', authController.githubCallback);
-router.get('/logout', authController.logout);
+const router = express.Router();
+
+router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+router.get('/github/callback', passport.authenticate('github', { failureRedirect: '/login' }), userController.githubCallback);
 
 module.exports = router;

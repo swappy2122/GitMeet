@@ -1,71 +1,115 @@
-require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
-const session = require('express-session');
+const cors = require('cors');
 const passport = require('passport');
+const session = require('express-session');
 const GitHubStrategy = require('passport-github2').Strategy;
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+const User = require('./models/userModel');
+const authRoutes = require("./routes/authRoutes");
+const connectDB = require('./config/dbConfig');
 
-const User = require('./models/User');
-const authRoutes = require('./controllers/routes/authRoutes');
+dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log('MongoDB Connected'))
-  .catch(err => console.error(err));
+connectDB(); // connect to mongoDB
 
-// Sessions
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.JWT_SECRET,
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: false
 }));
 
-// Passport Setup
 app.use(passport.initialize());
 app.use(passport.session());
+
+passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: process.env.GITHUB_CALLBACK_URL
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    try {
+      let user = await User.findOne({ githubId: profile.id });
+      
+      if (!user) {
+        user = await User.create({
+          githubId: profile.id,
+          username: profile.username,
+          displayName: profile.displayName,
+          profileUrl: profile.profileUrl,
+          photos: profile.photos,
+          email: profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null
+        });
+      }
+      
+      return done(null, user);
+    } catch (error) {
+      return done(error);
+    }
+  }
+));
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
-
 passport.deserializeUser(async (id, done) => {
-  const user = await User.findById(id);
-  done(null, user);
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (error) {
+    done(error);
+  }
 });
 
-passport.use(new GitHubStrategy({
-  clientID: process.env.GITHUB_CLIENT_ID,
-  clientSecret: process.env.GITHUB_CLIENT_SECRET,
-  callbackURL: process.env.GITHUB_CALLBACK_URL
-}, async (accessToken, refreshToken, profile, done) => {
-  let user = await User.findOne({ githubId: profile.id });
-
-  if (!user) {
-    user = await User.create({
-      githubId: profile.id,
-      username: profile.username,
-      avatarUrl: profile._json.avatar_url
-    });
-  }
-
-  done(null, user);
-}));
-
-// Routes
 app.use('/auth', authRoutes);
 
-app.get('/', (req, res) => {
-  res.send('<h2>Welcome. <a href="/auth/github">Login with GitHub</a></h2>');
+// ===================== DON'T TOUCH THIS =====================
+app.get('/api/user', (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+    
+    const token = authHeader.split(' ')[1];
+    
+    jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ message: 'Invalid token' });
+      }
+      
+      const user = await User.findById(decoded.id).select('-__v');
+      
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      res.json(user);
+    });
+  } catch (error) {
+    console.error('Error getting user:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
-app.get('/profile', (req, res) => {
-  if (!req.user) return res.redirect('/');
-  res.send(`<h2>Hello ${req.user.username}!</h2><img src="${req.user.avatarUrl}" width="100" /><br><a href="/auth/logout">Logout</a>`);
+app.get('/api/logout', (req, res) => {
+  req.logout(() => {
+    res.json({ message: 'Logged out successfully' });
+  });
 });
+// ===================== DON'T TOUCH THIS =====================
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
