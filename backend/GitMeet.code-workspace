@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"name": "GitMeet",
+			"path": "../../GITHUB/GitMeet"
+		},
+		{
+			"name": "frontend",
+			"path": "../frontend"
+		},
+		{
+			"name": "node_modules",
+			"path": "../node_modules"
+		},
+		{
+			"name": ".pytest_cache",
+			"path": "../.pytest_cache"
+		},
+		{
+			"name": ".venv",
+			"path": "../.venv"
+		},
+		{
+			"name": "backend",
+			"path": "."
+		}
+	],
+	"settings": {}
+}
