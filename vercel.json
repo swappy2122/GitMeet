@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd frontend && npm install && npm run build",
+  "buildCommand": "UV_LINK_MODE=copy cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/dist",
   "env": {
     "VITE_API_URL": "/api",
