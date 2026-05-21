@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { API_ROOT } from '../lib/config';
 import MatchForm from '../components/MatchForm';
 import PRModal from '../components/PRModal';
 import {
@@ -75,7 +76,7 @@ export default function Home() {
   const loadIssues = async () => {
     setLoadingIssues(true);
     try {
-      const res = await axios.get('http://localhost:8000/api/issues?language=javascript');
+      const res = await axios.get(`${API_ROOT}/issues?language=javascript`);
       setIssues(res.data.data ?? []);
       setActiveTab('issues');
     } catch (e) {
@@ -95,7 +96,7 @@ export default function Home() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 sec timeout
       
-      const res = await axios.post('http://localhost:8000/api/generate-pr', {
+      const res = await axios.post(`${API_ROOT}/generate-pr`, {
         title: issue.title,
         body: issue.body ?? 'No description provided.',
         reason: 'I have relevant experience and would like to contribute.',
@@ -114,7 +115,7 @@ export default function Home() {
   };
 
   const handleLogin = () => {
-    window.location.href = 'http://localhost:8000/api/auth/login';
+    window.location.href = `${API_ROOT}/auth/login`;
   };
 
   const displayItems = activeTab === 'matches' ? matches : issues;

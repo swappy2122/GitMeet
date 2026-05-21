@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import api from '../lib/api';
+import { API_ROOT } from '../lib/config';
 import PRModal from '../components/PRModal';
 import { FileText, Loader2 } from 'lucide-react';
 
@@ -33,7 +34,7 @@ export default function Matches() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
       
-      const res = await axios.post('http://localhost:8000/api/generate-pr', {
+      const res = await axios.post(`${API_ROOT}/generate-pr`, {
         title: match.name || match.title,
         body: match.summary || match.description || 'Interested in contributing to this project.',
         reason: 'I have relevant experience and would like to contribute.',

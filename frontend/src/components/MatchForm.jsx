@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { API_ROOT } from '../lib/config';
 import { Zap, Loader2, Sparkles, ArrowRight, AlertCircle } from 'lucide-react';
 
 export default function MatchForm({ setMatches }) {
@@ -13,7 +14,7 @@ export default function MatchForm({ setMatches }) {
     setError('');
     try {
       const token = localStorage.getItem('github_token');
-      const res = await axios.post('http://localhost:8000/api/match', {
+      const res = await axios.post(`${API_ROOT}/match`, {
         skills,
         language: 'javascript',
       }, {

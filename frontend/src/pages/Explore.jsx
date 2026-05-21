@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import api from '../lib/api';
 import { Star, FileText, ChevronRight } from 'lucide-react';
 import axios from 'axios';
+import { API_ROOT } from '../lib/config';
 
 export default function Explore() {
   const topics = ['ai', 'infra', 'frontend'];
@@ -22,7 +23,7 @@ export default function Explore() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
       
-      const res = await axios.post('http://localhost:8000/api/generate-pr', {
+      const res = await axios.post(`${API_ROOT}/generate-pr`, {
         title: issue.title,
         body: issue.body ?? 'No description provided.',
         reason: 'I have relevant experience and would like to contribute.',

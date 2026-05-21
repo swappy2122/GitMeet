@@ -1,4 +1,5 @@
 import { ArrowRight, Github, Shield, Sparkles, Terminal } from 'lucide-react';
+import { API_ROOT } from '../lib/config';
 
 const FeaturePill = ({ label }) => (
   <div className="flex items-center gap-3 rounded-2xl border border-(--border-subtle) bg-white/3 px-4 py-3 text-sm text-(--text-secondary) transition-colors hover:border-[rgba(0,242,254,0.45)] hover:bg-white/5">
@@ -16,7 +17,7 @@ const terminalLines = [
 
 export default function Login() {
   const handleLogin = () => {
-    window.location.href = 'http://localhost:8000/api/auth/login';
+    window.location.href = `${API_ROOT}/auth/login`;
   };
 
   return (
