@@ -7,11 +7,9 @@ let API_URL = '/api';
 if (import.meta.env.DEV) {
   API_URL = 'http://localhost:8000/api';
 }
-// In production, Vite automatically replaces VITE_API_URL
+// In production on Vercel, VITE_API_URL is already the full path
 else if (import.meta.env.VITE_API_URL) {
-  API_URL = import.meta.env.VITE_API_URL.startsWith('http') 
-    ? `${import.meta.env.VITE_API_URL}/api`
-    : import.meta.env.VITE_API_URL;
+  API_URL = import.meta.env.VITE_API_URL;
 }
 
 const client = axios.create({ baseURL: API_URL, timeout: 5000 });
