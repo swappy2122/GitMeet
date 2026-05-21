@@ -1,22 +1,29 @@
-import google.generativeai as genai
 import os
 import json
 import re
 import asyncio
 from dotenv import load_dotenv
-from google.generativeai.types import HarmCategory, HarmBlockThreshold
+from google import genai
+from google.genai import types
 
 load_dotenv()
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+DEFAULT_MODEL = os.getenv("GEMINI_MODEL") or "gemini-1.5-flash"
 
-# Low-latency generation settings.
-GENERATION_CONFIG = {
-    "temperature": 0.1,
-    "top_p": 0.95,
-    "top_k": 20,
-    "max_output_tokens": 1024,
-    "response_mime_type": "application/json",
-}
+
+def _build_config(system_instruction: str, max_output_tokens: int = 1024):
+    return types.GenerateContentConfig(
+        temperature=0.1,
+        top_p=0.95,
+        top_k=20,
+        max_output_tokens=max_output_tokens,
+        response_mime_type="application/json",
+        system_instruction=system_instruction,
+        safety_settings=[
+            types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+            types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
+        ],
+    )
 
 def _lite_issues(raw_issues: list, limit: int = 5, body_chars: int = 200) -> list:
     """Return a small, Gemini-friendly slice of GitHub issues."""
@@ -61,22 +68,6 @@ def _extract_json(raw_text: str):
         return []
 
 def get_ai_matches(user_profile: str, issues: list):
-    # Use Flash for speed.
-    model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
-        system_instruction=(
-            "You are a fast JSON ranker. Match user skills to GitHub issues. "
-            "Return ONLY a JSON array of up to 3 matches. No markdown."
-        ),
-        generation_config=GENERATION_CONFIG,
-    )
-
-    # Disable aggressive safety filters for coding tasks
-    safety = {
-        HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
-        HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-    }
-
     lite_issues = _lite_issues(issues, limit=5, body_chars=200)
 
     # Keep prompt intentionally short to reduce tokens / latency.
@@ -86,32 +77,58 @@ def get_ai_matches(user_profile: str, issues: list):
         "Return JSON: [{title,url,match_score,reason}]"
     )
 
-    response = model.generate_content(
-        prompt,
-        safety_settings=safety,
-    )
+    model_name = os.getenv("GEMINI_MODEL") or DEFAULT_MODEL
+    try:
+        response = client.models.generate_content(
+            model=model_name,
+            contents=prompt,
+            config=_build_config(
+                "You are a fast JSON ranker. Match user skills to GitHub issues. "
+                "Return ONLY a JSON array of up to 3 matches. No markdown.",
+            ),
+        )
 
-    return _extract_json(response.text)
+        return _extract_json(response.text)
+    except Exception as e:
+        # Model not found or API error — fall back to a local heuristic to avoid 500s.
+        print(f"Gemini generate_content failed for model '{model_name}': {e}. Falling back to heuristic ranking.")
+        return _heuristic_rank(user_profile, lite_issues)
+
+
+def _heuristic_rank(user_profile: str, lite_issues: list):
+    """Simple fallback ranking: score issues by keyword overlap between profile and title/body."""
+    try:
+        profile_text = (user_profile or "").lower()
+        results = []
+        for it in lite_issues:
+            title = (it.get("title") or "").lower()
+            body = (it.get("body_snippet") or "").lower()
+            score = 0
+            for token in re.findall(r"\w+", profile_text):
+                if token and (token in title or token in body):
+                    score += 10
+            # base score by presence of labels
+            score += min(50, len(it.get("labels", [])) * 5)
+            results.append({
+                "id": it.get("id"),
+                "title": it.get("title"),
+                "url": it.get("url"),
+                "repo": it.get("repo"),
+                "match_score": min(100, 50 + score),
+                "reason": "heuristic",
+            })
+        # sort by score desc and return top 3
+        results.sort(key=lambda x: x.get("match_score", 0), reverse=True)
+        return results[:3]
+    except Exception as e:
+        print(f"Heuristic ranking failed: {e}")
+        return []
 
 async def get_personalized_matches_async(user_profile, lite_issues):
     """Async version to avoid blocking the FastAPI event loop.
 
     IMPORTANT: Keep the prompt tiny (titles/ids only) and cap runtime.
     """
-
-    model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
-        system_instruction=(
-            "You are a fast JSON ranker. "
-            "Return ONLY a JSON array of up to 3 items, no markdown, no extra keys. "
-            "Schema: [{id,title,match_score}]"
-        ),
-        generation_config={
-            **GENERATION_CONFIG,
-            "temperature": 0.1,
-            "max_output_tokens": 200,
-        },
-    )
 
     # Keep only what's needed for ranking.
     pruned = []
@@ -131,8 +148,22 @@ async def get_personalized_matches_async(user_profile, lite_issues):
     )
 
     async def _call():
-        response = await model.generate_content_async(prompt)
-        return _extract_json(response.text)
+        model_name = os.getenv("GEMINI_MODEL") or DEFAULT_MODEL
+        try:
+            response = await client.aio.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=_build_config(
+                    "You are a fast JSON ranker. "
+                    "Return ONLY a JSON array of up to 3 items, no markdown, no extra keys. "
+                    "Schema: [{id,title,match_score}]",
+                    max_output_tokens=200,
+                ),
+            )
+            return _extract_json(response.text)
+        except Exception as e:
+            print(f"Async Gemini generate_content failed for model '{model_name}': {e}. Falling back to heuristic ranking.")
+            return _heuristic_rank(user_profile, lite_issues)
 
     # Strict upper bound so API doesn't hang the client.
     return await asyncio.wait_for(_call(), timeout=15.0)

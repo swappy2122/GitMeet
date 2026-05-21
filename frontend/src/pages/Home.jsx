@@ -8,27 +8,27 @@ import {
 } from 'lucide-react';
 
 const IssueCard = ({ issue, onGeneratePR }) => (
-  <div className="group flex items-start gap-4 p-4 rounded-md border border-transparent hover:border-[var(--border-subtle)] hover:bg-[var(--bg-tertiary)] transition-all duration-300">
-    <div className="flex-shrink-0 w-9 h-9 rounded-md bg-[var(--bg-tertiary)] flex items-center justify-center mt-0.5">
-      <GitPullRequest size={14} className="text-[var(--text-muted)]" strokeWidth={2} />
+  <div className="group flex items-start gap-4 p-4 rounded-md border border-transparent hover:border-(--border-subtle) hover:bg-(--bg-tertiary) transition-all duration-300">
+    <div className="shrink-0 w-9 h-9 rounded-md bg-(--bg-tertiary) flex items-center justify-center mt-0.5">
+      <GitPullRequest size={14} className="text-(--text-muted)" strokeWidth={2} />
     </div>
     <div className="flex-1 min-w-0">
       <a href={issue.url} target="_blank" rel="noreferrer"
-        className="text-sm font-medium text-[var(--text-secondary)] truncate block group-hover:text-[var(--text-primary)] transition-colors">
+        className="text-sm font-medium text-(--text-secondary) truncate block group-hover:text-(--text-primary) transition-colors">
         {issue.title}
       </a>
-      <p className="text-xs text-[var(--text-muted)] mt-1.5 flex items-center gap-1.5">
+      <p className="text-xs text-(--text-muted) mt-1.5 flex items-center gap-1.5">
         <BookOpen size={11} strokeWidth={2} />
         {issue.repository}
       </p>
     </div>
-    <div className="flex items-center gap-1.5 flex-shrink-0">
+    <div className="flex items-center gap-1.5 shrink-0">
       <button onClick={() => onGeneratePR(issue)} title="Generate PR Draft"
-        className="p-2 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-all duration-200">
+        className="p-2 rounded-md text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-tertiary) transition-all duration-200">
         <FileText size={15} strokeWidth={2} />
       </button>
       <a href={issue.url} target="_blank" rel="noreferrer"
-        className="p-2 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-all duration-200">
+        className="p-2 rounded-md text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-tertiary) transition-all duration-200">
         <ExternalLink size={15} strokeWidth={2} />
       </a>
     </div>
@@ -36,28 +36,28 @@ const IssueCard = ({ issue, onGeneratePR }) => (
 );
 
 const MatchCard = ({ match, index, onGeneratePR }) => (
-  <div className="group flex items-start gap-4 p-4 rounded-md border border-transparent hover:border-[var(--border-subtle)] hover:bg-[var(--bg-tertiary)] transition-all duration-300"
+  <div className="group flex items-start gap-4 p-4 rounded-md border border-transparent hover:border-(--border-subtle) hover:bg-(--bg-tertiary) transition-all duration-300"
     style={{ animationDelay: `${index * 60}ms` }}>
-    <div className="flex-shrink-0 w-9 h-9 rounded-md bg-[var(--bg-tertiary)] flex items-center justify-center mt-0.5">
-      <Zap size={14} className="text-[var(--text-muted)]" strokeWidth={2} />
+    <div className="shrink-0 w-9 h-9 rounded-md bg-(--bg-tertiary) flex items-center justify-center mt-0.5">
+      <Zap size={14} className="text-(--text-muted)" strokeWidth={2} />
     </div>
     <div className="flex-1 min-w-0">
-      <p className="text-sm font-medium text-[var(--text-secondary)] leading-snug group-hover:text-[var(--text-primary)] transition-colors">
+      <p className="text-sm font-medium text-(--text-secondary) leading-snug group-hover:text-(--text-primary) transition-colors">
         {match.title}
       </p>
       {match.url && (
         <a href={match.url} target="_blank" rel="noreferrer"
-          className="text-xs text-[var(--text-muted)] hover:text-[var(--accent)] flex items-center gap-1 mt-2 transition-colors w-fit">
+          className="text-xs text-(--text-muted) hover:text-(--accent) flex items-center gap-1 mt-2 transition-colors w-fit">
           View Issue <ChevronRight size={11} strokeWidth={2} />
         </a>
       )}
     </div>
-    <div className="flex items-center gap-2 flex-shrink-0">
-      <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[var(--text-secondary)]">
+    <div className="flex items-center gap-2 shrink-0">
+      <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-(--bg-tertiary) border border-(--border-subtle) text-(--text-secondary)">
         <Star size={11} strokeWidth={2} /> {match.match_score ?? '—'}
       </span>
       <button onClick={() => onGeneratePR(match)} title="Generate PR Draft"
-        className="p-2 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-all duration-200">
+        className="p-2 rounded-md text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-tertiary) transition-all duration-200">
         <FileText size={15} strokeWidth={2} />
       </button>
     </div>
@@ -121,20 +121,20 @@ export default function Home() {
   const totalCount = displayItems.length;
 
   return (
-     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-secondary)] relative overflow-x-hidden flex flex-col"
+     <div className="min-h-screen bg-(--bg-primary) text-(--text-secondary) relative overflow-x-hidden flex flex-col"
       style={{ fontFamily: "'Inter', sans-serif" }}>
 
       <div className="noise" />
 
       {/* ── Navbar ── */}
-      <header className="sticky top-0 z-50 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-(--border-subtle) bg-(--bg-primary)/80 backdrop-blur-xl">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-md bg-[var(--text-primary)] flex items-center justify-center">
-              <Hexagon size={16} className="text-[var(--bg-primary)]" strokeWidth={2.5} />
+            <div className="w-9 h-9 rounded-md bg-(--text-primary) flex items-center justify-center">
+              <Hexagon size={16} className="text-(--bg-primary)" strokeWidth={2.5} />
             </div>
-            <span className="text-sm font-bold tracking-[-0.02em] text-[var(--text-primary)]">
-              OSS<span className="text-[var(--text-muted)]">Match</span>
+            <span className="text-sm font-bold tracking-[-0.02em] text-(--text-primary)">
+              OSS<span className="text-(--text-muted)">Match</span>
             </span>
           </div>
           <button
@@ -152,15 +152,15 @@ export default function Home() {
 
           {/* ── Hero ── */}
           <section className="text-center mb-14 animate-fade-up">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] text-[0.65rem] text-[var(--text-muted)] font-semibold uppercase tracking-[0.1em] mb-8">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-(--bg-tertiary) border border-(--border-subtle) text-[0.65rem] text-(--text-muted) font-semibold uppercase tracking-widest mb-8">
               <Sparkles size={11} strokeWidth={2.5} />
               Powered by Gemini AI
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-[-0.04em] text-[var(--text-primary)] mb-5 leading-tight">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-[-0.04em] text-(--text-primary) mb-5 leading-tight">
               Find Your Perfect<br />
               <span className="shimmer-text">OSS Contribution</span>
             </h1>
-            <p className="text-[var(--text-muted)] text-sm max-w-lg mx-auto leading-relaxed">
+            <p className="text-(--text-muted) text-sm max-w-lg mx-auto leading-relaxed">
               Describe your skills and Gemini AI will surface the most relevant open‑source issues across GitHub — tailored to you.
             </p>
           </section>
@@ -178,18 +178,18 @@ export default function Home() {
                 className="btn-ghost w-full py-3.5 text-xs font-medium"
               >
                 {loadingIssues
-                  ? <><Loader2 size={14} className="animate-spin text-[var(--text-muted)]" strokeWidth={2.5} /> <span>Fetching Issues…</span></>
-                  : <><BookOpen size={14} className="text-[var(--text-muted)]" strokeWidth={2} /> <span>Browse GitHub Issues</span></>
+                  ? <><Loader2 size={14} className="animate-spin text-(--text-muted)" strokeWidth={2.5} /> <span>Fetching Issues…</span></>
+                  : <><BookOpen size={14} className="text-(--text-muted)" strokeWidth={2} /> <span>Browse GitHub Issues</span></>
                 }
               </button>
             </div>
 
             {/* Center + Right: feed panel */}
-            <div className="lg:col-span-2 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-5 flex flex-col" style={{ minHeight: '560px' }}>
+            <div className="lg:col-span-2 rounded-md border border-(--border-subtle) bg-(--bg-secondary) p-5 flex flex-col" style={{ minHeight: '560px' }}>
 
               {/* Tab bar */}
               <div className="flex items-center justify-between mb-5">
-                <div className="flex gap-1 p-1 rounded-md bg-[var(--bg-tertiary)] border border-[var(--border-subtle)]">
+                <div className="flex gap-1 p-1 rounded-md bg-(--bg-tertiary) border border-(--border-subtle)">
                   {[
                     { key: 'issues', label: 'Issues', count: issues.length },
                     { key: 'matches', label: 'Matches', count: matches.length },
@@ -199,20 +199,20 @@ export default function Home() {
                       onClick={() => setActiveTab(key)}
                       className={`flex items-center justify-center gap-2 px-5 py-2 rounded-md text-xs font-semibold uppercase tracking-[0.06em] transition-all duration-200 ${
                         activeTab === key
-                          ? 'text-[var(--bg-primary)] bg-[var(--text-primary)]'
-                          : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+                          ? 'text-(--bg-primary) bg-(--text-primary)'
+                          : 'text-(--text-muted) hover:text-(--text-secondary)'
                       }`}
                     >
                       <span>{label}</span>
                       {count > 0 && (
                         <span className={`px-1.5 py-0.5 rounded text-[0.6rem] font-bold ${
-                          activeTab === key ? 'bg-[var(--bg-primary)]/10 text-[var(--bg-primary)]' : 'bg-[var(--border-subtle)] text-[var(--text-muted)]'
+                          activeTab === key ? 'bg-(--bg-primary)/10 text-(--bg-primary)' : 'bg-(--border-subtle) text-(--text-muted)'
                         }`}>{count}</span>
                       )}
                     </button>
                   ))}
                 </div>
-                <span className="text-[0.65rem] text-[var(--text-muted)] font-medium">
+                <span className="text-[0.65rem] text-(--text-muted) font-medium">
                   {totalCount > 0 ? `${totalCount} result${totalCount !== 1 ? 's' : ''}` : 'Waiting…'}
                 </span>
               </div>
@@ -229,12 +229,12 @@ export default function Home() {
                   ))
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full gap-4 py-20">
-                    <div className="w-16 h-16 rounded-md bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] flex items-center justify-center">
-                      <GitPullRequest size={24} className="text-[var(--text-muted)]" strokeWidth={1.5} />
+                    <div className="w-16 h-16 rounded-md bg-(--bg-tertiary) border border-(--border-subtle) flex items-center justify-center">
+                      <GitPullRequest size={24} className="text-(--text-muted)" strokeWidth={1.5} />
                     </div>
                     <div className="text-center">
-                      <p className="text-sm font-medium text-[var(--text-muted)] mb-1.5">No results yet</p>
-                      <p className="text-xs text-[var(--text-muted)] max-w-[260px] leading-relaxed">
+                      <p className="text-sm font-medium text-(--text-muted) mb-1.5">No results yet</p>
+                      <p className="text-xs text-(--text-muted) max-w-65 leading-relaxed">
                         Describe your skills to get AI matches, or browse GitHub issues to explore
                       </p>
                     </div>
@@ -250,9 +250,9 @@ export default function Home() {
       {generatingPR && (
         <div className="fixed inset-0 z-50 flex items-center justify-center animate-fade-in"
           style={{ background: 'rgba(13,17,23,0.85)', backdropFilter: 'blur(20px)' }}>
-          <div className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-secondary)] p-10 flex flex-col items-center justify-center gap-4 w-full max-w-xs">
-            <Loader2 size={24} className="text-[var(--text-secondary)] animate-spin" strokeWidth={2} />
-            <p className="text-sm text-[var(--text-muted)] font-medium text-center">Generating PR draft…</p>
+          <div className="rounded-md border border-(--border-subtle) bg-(--bg-secondary) p-10 flex flex-col items-center justify-center gap-4 w-full max-w-xs">
+            <Loader2 size={24} className="text-(--text-secondary) animate-spin" strokeWidth={2} />
+            <p className="text-sm text-(--text-muted) font-medium text-center">Generating PR draft…</p>
           </div>
         </div>
       )}

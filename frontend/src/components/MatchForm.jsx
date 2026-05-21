@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { Zap, Loader2, Sparkles, ArrowRight } from 'lucide-react';
+import { Zap, Loader2, Sparkles, ArrowRight, AlertCircle } from 'lucide-react';
 
 export default function MatchForm({ setMatches }) {
   const [skills, setSkills] = useState('');
@@ -28,79 +28,58 @@ export default function MatchForm({ setMatches }) {
   };
 
   return (
-    <div className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-secondary)] overflow-hidden">
-
-      {/* Header */}
-      <div className="px-6 py-5 border-b border-[var(--border-subtle)]">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-md bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] flex items-center justify-center flex-shrink-0">
-            <Sparkles size={17} className="text-[var(--text-muted)]" strokeWidth={2} />
+    <div className="w-full max-w-2xl">
+      <div className="glass-card card-elevated rounded-2xl p-8">
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-lg bg-linear-to-br from-(--accent) to-blue-600 flex items-center justify-center shadow-glow">
+              <Sparkles size={18} className="text-white" strokeWidth={2} />
+            </div>
+            <h2 className="text-2xl md:text-3xl font-semibold text-(--text-primary)">Find Your Match</h2>
           </div>
+          <p className="text-(--text-muted) text-sm">Enter your skills to discover curated open-source opportunities tailored to you.</p>
+        </div>
+        
+        <form onSubmit={(e) => { e.preventDefault(); startMatching(); }} className="space-y-6" aria-label="Match form">
           <div>
-            <h3 className="text-sm font-semibold text-[var(--text-primary)] tracking-[-0.01em]">Describe Your Skills</h3>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5">Gemini AI will find your perfect matches</p>
+            <label className="block text-sm font-semibold text-(--text-secondary) mb-3">
+              Skills & Expertise
+            </label>
+            <textarea
+              value={skills}
+              onChange={(e) => setSkills(e.target.value)}
+              placeholder="e.g., React, Node.js, Python, Machine Learning..."
+              className="w-full px-5 py-3 bg-(--bg-tertiary) border border-(--border-subtle) rounded-xl text-(--text-primary) placeholder-(--text-muted) focus:outline-none focus:border-(--accent) focus:ring-2 focus:ring-(--accent)/20 transition-all duration-200 resize-none h-24"
+            />
           </div>
-        </div>
-      </div>
 
-      {/* Body */}
-      <div className="px-6 py-6 space-y-5">
-        {/* Textarea */}
-        <div>
-          <label className="block text-[0.65rem] font-semibold text-[var(--text-muted)] mb-2.5 uppercase tracking-[0.1em]">
-            Your Skills & Experience
-          </label>
-          <textarea
-            rows={5}
-            value={skills}
-            onChange={e => { setSkills(e.target.value); setError(''); }}
-            placeholder="e.g., I'm a React developer with experience in Tailwind CSS, Node.js, and TypeScript…"
-            className="w-full resize-none rounded-md px-4 py-3.5 text-sm text-[var(--text-secondary)] placeholder-[var(--text-muted)]
-                       outline-none transition-all duration-200 leading-relaxed font-normal
-                       bg-[var(--bg-primary)] border border-[var(--border-subtle)]
-                       focus:border-[var(--border-default)] focus:ring-1 focus:ring-[var(--border-subtle)]"
-          />
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-[0.65rem] text-[var(--text-muted)] font-medium">
-              {skills.length} / 500
-            </span>
-            <span className="text-[0.65rem] text-[var(--text-muted)]">
-              {Math.round((skills.length / 500) * 100)}%
-            </span>
-          </div>
-        </div>
-
-        {/* Error */}
-        {error && (
-          <div className="rounded-md px-4 py-3 flex items-start gap-2.5 border border-[var(--danger)]/30 bg-[var(--danger)]/10 text-[var(--danger)]">
-            <span className="text-sm mt-0.5">⚠</span>
-            <p className="text-xs font-medium leading-relaxed">{error}</p>
-          </div>
-        )}
-
-        {/* CTA Button */}
-        <button
-          onClick={startMatching}
-          disabled={loading || !skills.trim()}
-          className="btn-primary w-full py-3.5 text-sm"
-        >
-          {loading ? (
-            <>
-              <Loader2 size={16} className="animate-spin" strokeWidth={2.5} />
-              <span>Analyzing your skills…</span>
-            </>
-          ) : (
-            <>
-              <Zap size={16} strokeWidth={2.5} />
-              <span>Find My Perfect Matches</span>
-              <ArrowRight size={16} strokeWidth={2} className="opacity-40" />
-            </>
+          {error && (
+            <div className="flex items-start gap-3 p-4 bg-(--danger)/10 border border-(--danger)/30 rounded-lg">
+              <AlertCircle size={18} className="text-(--danger) shrink-0 mt-0.5" strokeWidth={2} />
+              <p className="text-sm text-(--danger)">{error}</p>
+            </div>
           )}
-        </button>
 
-        <p className="text-[0.65rem] text-[var(--text-muted)] text-center leading-relaxed">
-          Be specific about your skills and experience level for better results.
-        </p>
+          <button
+            type="submit"
+            disabled={loading || !skills.trim()}
+            className={`w-full btn-primary flex items-center justify-center ${loading || !skills.trim() ? 'opacity-60 cursor-not-allowed' : ''}`}
+            aria-disabled={loading || !skills.trim()}
+          >
+            {loading ? (
+              <>
+                <Loader2 size={18} className="animate-spin" strokeWidth={2} />
+                <span>Finding matches...</span>
+              </>
+            ) : (
+              <>
+                <Zap size={18} strokeWidth={2} />
+                <span>Find Matches</span>
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" strokeWidth={2} />
+              </>
+            )}
+          </button>
+        </form>
       </div>
     </div>
   );

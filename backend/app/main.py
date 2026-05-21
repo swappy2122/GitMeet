@@ -12,30 +12,18 @@ from app.routes import auth, explore  # Import the auth and explore routers
 
 app = FastAPI()
 
-# MUST BE AT THE TOP
+# CORS configuration - allow development frontend ports
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174",
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
-)
-
-# Define which origins (URLs) are allowed to talk to your API
-origins = [
-    "http://localhost:5173",  # Your React/Vite dev server
-    "http://127.0.0.1:5173",
-]
-
-# Add the CORSMiddleware to your app
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,  # explicit allow-list
-    # dev-friendly: allow any localhost port (helps if Vite port changes)
-    allow_origin_regex=r"^https?://(localhost|127\\.0\\.0\\.1)(:\\d+)?$",
-    allow_credentials=True,
-    allow_methods=["*"],               # Allows GET, POST, OPTIONS, etc.
-    allow_headers=["*"],               # Allows Content-Type, Authorization, etc.
 )
 
 app.include_router(router, prefix="/api")

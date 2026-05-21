@@ -1,13 +1,12 @@
-import google.generativeai as genai
 import os
 from dotenv import load_dotenv
+from google import genai
+from google.genai import types
 
 load_dotenv()
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 def generate_pr_draft(issue_title, issue_body, user_match_reason):
-    model = genai.GenerativeModel('gemini-1.5-flash')
-
     # Truncate long descriptions to speed up generation
     body_preview = (issue_body[:200] + "...") if len(issue_body) > 200 else issue_body
     
@@ -21,21 +20,15 @@ Include only:
 3. Testing (quick checklist)"""
 
     try:
-        # Set timeout and stream for faster response
-        response = model.generate_content(
-            prompt,
-            generation_config=genai.types.GenerationConfig(
+        response = client.models.generate_content(
+            model='gemini-1.5-flash',
+            contents=prompt,
+            config=types.GenerateContentConfig(
                 temperature=0.7,
                 top_p=0.8,
                 top_k=20,
-                max_output_tokens=300
+                max_output_tokens=300,
             ),
-            safety_settings=[
-                genai.types.SafetySetting(
-                    category=genai.types.HarmCategory.HARM_CATEGORY_UNSPECIFIED,
-                    threshold=genai.types.HarmBlockThreshold.BLOCK_NONE
-                )
-            ]
         )
         return response.text
     except Exception as e:
