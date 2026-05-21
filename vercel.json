@@ -1,6 +1,9 @@
 {
   "buildCommand": "npm run build --prefix frontend",
   "outputDirectory": "frontend/dist",
+  "env": {
+    "VITE_API_URL": "/api"
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
@@ -10,8 +13,5 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],
-  "env": {
-    "VITE_API_URL": "@vite_api_url"
-  }
+  ]
 }
